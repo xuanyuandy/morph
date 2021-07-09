@@ -206,6 +206,7 @@ public class TwoMorphActivity extends AppCompatActivity {
             // crop a image
             if (resultCode == RESULT_OK) {
                 if (data != null) {
+                    // this is the path after crop
                     Toast.makeText(TwoMorphActivity.this,("this is my picture" + mSelectPath), Toast.LENGTH_SHORT).show();
                     Glide.with(this).load(mSelectPath).into(mImageViews.get(mCurrentIndex));
                     startDetectFaceInfo();
