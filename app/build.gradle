@@ -1,0 +1,81 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 30
+    signingConfigs {
+        demokey {
+            storeFile file('demokey.jks')
+            storePassword "demokey"
+            keyAlias 'demokey'
+            keyPassword 'demokey'
+        }
+    }
+    defaultConfig {
+        applicationId "com.example.cv"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        externalNativeBuild {
+            ndk {
+                abiFilters "armeabi-v7a"
+            }
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.demokey
+        }
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.demokey
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def fileName = project.name + '-' + variant.name + '-V' +
+                    defaultConfig.versionName + ".apk"
+            outputFileName = fileName
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.blankj:utilcodex:1.29.0'
+    implementation 'com.iqiyi.xcrash:xcrash-android-lib:2.4.7'
+    implementation 'com.alibaba:arouter-api:1.5.0'
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    implementation 'com.bilibili:burst-linker:0.0.13'
+    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
+    implementation 'com.jakewharton:butterknife:10.2.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.devbrackets.android:exomedia:4.3.0'
+    implementation project(path: ':morpher')
+    testImplementation 'junit:junit:4.+'
+    implementation 'com.github.yalantis:ucrop:2.2.4-native'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+
+}

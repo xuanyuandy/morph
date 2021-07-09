@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="face_detect_entry">
+        <item>Face Landmarks</item>
+        <item>Face Division</item>
+        <item>Face Rect</item>
+    </string-array>
+    <string-array name="pref_resolution_array">
+        <item>240x320</item>
+        <item>288x384</item>
+        <item>336x448</item>
+        <item>384x512</item>
+        <item>432x576</item>
+        <item>480x640</item>
+        <item>576x768</item>
+        <item>720x960</item>
+        <item>768x1024</item>
+        <item>960x1280</item>
+        <item>1200x1600</item>
+    </string-array>
+    <string-array name="pref_resolution_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="pref_frames_array">
+        <item>5</item>
+        <item>8</item>
+        <item>12</item>
+        <item>16</item>
+        <item>20</item>
+        <item>30</item>
+        <item>50</item>
+        <item>80</item>
+        <item>100</item>
+    </string-array>
+    <string-array name="pref_frames_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+    <string-array name="pref_delay_array">
+        <item>300</item>
+        <item>500</item>
+        <item>800</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>3000</item>
+        <item>5000</item>
+        <item>8000</item>
+        <item>10000</item>
+    </string-array>
+    <string-array name="pref_quantizer_array">
+        <item>Uniform</item>
+        <item>MedianCut</item>
+        <item>KMeans</item>
+        <item>Random</item>
+        <item>Octree</item>
+        <item>NeuQuant</item>
+    </string-array>
+    <string-array name="pref_quantizer_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="pref_ditherer_array">
+        <item>No</item>
+        <item>M2</item>
+        <item>Bayer</item>
+        <item>FloydSteinberg</item>
+    </string-array>
+    <string-array name="pref_ditherer_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+</resources>

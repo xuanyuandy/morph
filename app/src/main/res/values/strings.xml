@@ -1,0 +1,66 @@
+<resources>
+    <string name="pref_resolution_key" translatable="false">pref_resolution_key</string>
+    <string name="pref_frames_key" translatable="false">pref_frames_key</string>
+    <string name="pref_trans_delay_key" translatable="false">pref_trans_delay_key</string>
+    <string name="pref_ditherer_key" translatable="false">pref_ditherer_key</string>
+    <string name="pref_quantizer_key" translatable="false">pref_quantizer_key</string>
+
+    <string name="app_source_code" translatable="false">FaceMorphMe</string>
+    <string name="github_project_page" translatable="false">https://github.com/huzongyao/FaceMorphMe</string>
+    <string name="github_project_release" translatable="false">https://github.com/huzongyao/FaceMorphMe/releases/latest</string>
+    <string name="github_user_page" translatable="false">https://github.com/huzongyao</string>
+    <string name="opencv_intro" translatable="false">OpenCV (Open Source Computer Vision Library) is an open source computer vision and machine learning software library. OpenCV was built to provide a common infrastructure for computer vision applications and to accelerate the use of machine perception in the commercial products. Being a BSD-licensed product, OpenCV makes it easy for businesses to utilize and modify the code.</string>
+    <string name="libyuv_intro" translatable="false">libyuv is an open source project that includes YUV scaling and conversion functionality.</string>
+
+    <string name="app_name">MorphMe</string>
+    <string name="menu_about">About</string>
+    <string name="version_info">Version Info</string>
+    <string name="source_code">Source Code</string>
+    <string name="my_github">My GitHub</string>
+    <string name="about">About</string>
+    <string name="web_view_refresh">Refresh</string>
+    <string name="detect_face">Face Detection</string>
+    <string name="load_bitmap">Choose Image</string>
+    <string name="morph_to_gif">Morph To Gif</string>
+    <string name="tap_to_choose_images">Tap The Image To Choose</string>
+    <string name="start_to_morph">Start Morph</string>
+    <string name="no_face_detected">No Face Detected!</string>
+    <string name="choose_images_first">Please Choose Image First</string>
+    <string name="loading_wait_tips">Now Loading, Please Wait…</string>
+    <string name="save_gif">Save Gif</string>
+    <string name="share_to">Share To</string>
+    <string name="loading">Loading…</string>
+    <string name="alpha_format_text">Alpha: %.4f</string>
+    <string name="settings">Settings</string>
+    <string name="resolution">Resolution</string>
+    <string name="pref_resolution_summary">Resolution Of Bitmap %s</string>
+    <string name="frame_count">Frame Count</string>
+    <string name="pref_frames_summary">Frames Count Of One Transformation: %s</string>
+    <string name="animation_delay">One Transform Duration</string>
+    <string name="pref_delay_summary">One Transformation Duration in ms: %s</string>
+    <string name="gif_output_settings">GIF Output Settings</string>
+    <string name="gif_encode_quantizer">Quantizer</string>
+    <string name="gif_encode_ditherer">Ditherer</string>
+    <string name="pref_ditherer_summary">Encoder Ditherer: %s</string>
+    <string name="pref_quantizer_summary">Encoder Quantizer: %s</string>
+    <string name="share_image">Share Image</string>
+    <string name="result_gif">Result Gif</string>
+    <string name="morphing_please_wait">Processing, Please Wait!!</string>
+    <string name="video_export_morph">Morph To Video</string>
+    <string name="save_video">Save Video</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_2images_tips">Please Select At Least 2 Images!</string>
+    <string name="image_long_touch_tips">Long Click To Delete Or Reorder!</string>
+    <string name="result_video">Result Video</string>
+    <string name="save_image">Save Image</string>
+    <string name="share_video">Share Video</string>
+    <string name="file_saved_already">File is Saved Already!!</string>
+    <string name="open_in_browser">Open In Browser</string>
+    <string name="exit">Exit</string>
+    <string name="rd3_open_source_libs">3rd Open Source Library</string>
+    <string name="triangulation">Triangulation</string>
+    <string name="landmarks">Landmarks</string>
+    <string name="operation_finished">Operation Finished!!</string>
+    <string name="seeta_detect">Seeta Detect</string>
+    <string name="seeta_points">Seeta Points</string>
+</resources>
