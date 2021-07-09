@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -89,6 +90,7 @@ public class TwoMorphActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        // this control the two image view
         mImageViews = new LinkedList<>();
         mImageViews.add(mImageviewFirst);
         mImageViews.add(mImageviewSecond);
@@ -185,18 +187,18 @@ public class TwoMorphActivity extends AppCompatActivity {
                 if (data != null) {
                     Uri dataUri = data.getData();
                     if (dataUri != null) {
-//                        // get a random name
-//                        File imgFile = SpaceUtils.newUsableFile();
-//                        mSelectPath = imgFile.getPath();
-//                        // the image intent just return a simple image
-//                        // the Ucrop(裁剪) is solved after the image intent
-//                        UCrop.Options options = new UCrop.Options();
-//                        options.setCompressionQuality(100);
-//                        UCrop.of(dataUri, Uri.fromFile(imgFile))
-//                                .withOptions(options)
-//                                .withMaxResultSize(mImageSize.x, mImageSize.y)
-//                                .withAspectRatio(3, 4)
-//                                .start(this, RequestCode.CROP_IMAGE);
+                        // get a random name
+                        File imgFile = SpaceUtils.newUsableFile();
+                        mSelectPath = imgFile.getPath();
+                        // the image intent just return a simple image
+                        // the Ucrop(裁剪) is solved after the image intent
+                        UCrop.Options options = new UCrop.Options();
+                        options.setCompressionQuality(100);
+                        UCrop.of(dataUri, Uri.fromFile(imgFile))
+                                .withOptions(options)
+                                .withMaxResultSize(mImageSize.x, mImageSize.y)
+                                .withAspectRatio(3, 4)
+                                .start(this, RequestCode.CROP_IMAGE);
                     }
                 }
             }
@@ -204,6 +206,7 @@ public class TwoMorphActivity extends AppCompatActivity {
             // crop a image
             if (resultCode == RESULT_OK) {
                 if (data != null) {
+                    Toast.makeText(TwoMorphActivity.this,("this is my picture" + mSelectPath), Toast.LENGTH_SHORT).show();
                     Glide.with(this).load(mSelectPath).into(mImageViews.get(mCurrentIndex));
                     startDetectFaceInfo();
                 }
