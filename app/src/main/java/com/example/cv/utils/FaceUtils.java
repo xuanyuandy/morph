@@ -1,12 +1,17 @@
 package com.example.cv.utils;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.blankj.utilcode.util.ImageUtils;
 import com.blankj.utilcode.util.LogUtils;
+import com.bumptech.glide.load.engine.Resource;
+import com.example.cv.R;
 import com.hzy.face.morpher.MorpherApi;
 import com.hzy.face.morpher.Seeta2Api;
 import com.example.cv.bean.FaceImage;
@@ -56,4 +61,7 @@ public class FaceUtils {
         }
         return null;
     }
+
+
+
 }

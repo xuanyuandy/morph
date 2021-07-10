@@ -4,7 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,9 +42,13 @@ import com.example.cv.utils.ConfigUtils;
 import com.example.cv.utils.FaceUtils;
 import com.example.cv.utils.SpaceUtils;
 import com.example.cv.widget.Ratio34ImageView;
+import com.hzy.face.morpher.Seeta2Api;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -51,17 +59,17 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 @Route(path = RouterHub.TWO_MORPH_ACTIVITY)
-public class TwoMorphActivity extends AppCompatActivity {
+public class MyMorphActivity extends AppCompatActivity {
 
-    @BindView(R.id.imageview_first)
+    @BindView(R.id.my_imageview_first)
     Ratio34ImageView mImageviewFirst;
-    @BindView(R.id.imageview_second)
+    @BindView(R.id.my_imageview_second)
     Ratio34ImageView mImageviewSecond;
-    @BindView(R.id.imageview_output)
+    @BindView(R.id.my_imageview_output)
     Ratio34ImageView mImageviewOut;
-    @BindView(R.id.alpha_text)
+    @BindView(R.id.my_alpha_text)
     TextView mAlphaText;
-    @BindView(R.id.alpha_progress)
+    @BindView(R.id.my_alpha_progress)
     ProgressBar mAlphaProgress;
 
     private BurstLinker mBurstLinker;
@@ -77,17 +85,19 @@ public class TwoMorphActivity extends AppCompatActivity {
     private float mMorphAlpha = -1f;
     private volatile boolean mMorphRunning = false;
     private List<FaceImage> mFaceImages;
+    FaceImage FirstImage;
     private List<ImageView> mImageViews;
     private Bitmap mOutputBitmap;
     private String mSelectPath;
     private int mCurrentIndex;
+    private Bitmap bmp;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initConfigurations();
         // this is the normal use of butterKnife
-        setContentView(R.layout.activity_two_morph);
+        setContentView(R.layout.activity_my_morph);
         ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
@@ -108,9 +118,67 @@ public class TwoMorphActivity extends AppCompatActivity {
 
         mFaceExecutor.submit(ModelFileUtils::initSeetaApi);
 
-        Resources r = getResources();
+        bmp = BitmapFactory.decodeResource(getResources(), R.drawable.beauty3);
+        bmp = zoomImg(bmp,mImageSize.x,mImageSize.y);
+        assert(bmp != null);
+
     }
 
+    private void test(){
+        File imgFile = SpaceUtils.newUsableFile();
+        mSelectPath = imgFile.getPath();
+        // 将当前image存到任意分配的路径下
+        // R.drawable.beauty3 -> imgFile
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(imgFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        try {
+            fos.flush();
+            fos.close();
+            Toast.makeText(this, "success store", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        PointF[] points = Seeta2Api.INSTANCE.detectLandmarks(bmp, true);
+        if (points.length > 0) {
+            int[] indices = MorpherApi.getSubDivPointIndex(bmp.getWidth(),
+                    bmp.getHeight(), points);
+            if (indices != null && indices.length > 0) {
+                Toast.makeText(this,"success",Toast.LENGTH_SHORT).show();
+                FirstImage = new FaceImage(mSelectPath,points,indices);
+
+            }
+        }
+
+        mFaceImages.set(0, FirstImage);
+        assert (mFaceImages.get(0) != null);
+
+
+    }
+
+
+
+    public Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
+        // 获得图片的宽高
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        // 计算缩放比例
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // 取得想要缩放的matrix参数
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        // 得到新的图片
+        Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
+        return newbm;
+    }
     // get some arguments
     // get some 图像分辨率配置,过渡帧数,gif 持续时间
     private void initConfigurations() {
@@ -153,26 +221,27 @@ public class TwoMorphActivity extends AppCompatActivity {
     }
 
 
-    @OnClick({R.id.imageview_first,
-            R.id.imageview_second,
-            R.id.btn_start_morph,
-            R.id.btn_save_gif})
+    @OnClick({R.id.my_imageview_first,
+            R.id.my_imageview_second,
+            R.id.my_btn_start_morph,
+            R.id.my_btn_save_gif})
     public void onViewClicked(View view) {
         mMorphRunning = false;
         switch (view.getId()) {
-            case R.id.imageview_first:
+            case R.id.my_imageview_first:
                 mCurrentIndex = 0;
                 ActionUtils.startImageContentAction(this, RequestCode.CHOOSE_IMAGE);
                 break;
-            case R.id.imageview_second:
+            case R.id.my_imageview_second:
                 mCurrentIndex = 1;
                 ActionUtils.startImageContentAction(this, RequestCode.CHOOSE_IMAGE);
                 break;
-            case R.id.btn_start_morph:
+            case R.id.my_btn_start_morph:
                 startMorphProcess(false);
                 break;
-            case R.id.btn_save_gif:
-                startMorphProcess(true);
+            case R.id.my_btn_save_gif:
+                test();
+//                startMorphProcess(true);
                 break;
         }
     }
