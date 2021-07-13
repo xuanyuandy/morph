@@ -24,7 +24,19 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
-
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/back_rectangle"
+                android:padding="1px">
+                <!--  this use the define view to display the picture              -->
+                <com.example.cv.widget.Ratio34ImageView
+                    android:id="@+id/imageview_first"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_head" />
+            </FrameLayout>
 
             <View
                 android:layout_width="16dp"
@@ -38,7 +50,7 @@
                 android:padding="1px">
 
                 <com.example.cv.widget.Ratio34ImageView
-                    android:id="@+id/my_imageview_second"
+                    android:id="@+id/imageview_second"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_head" />
@@ -51,6 +63,18 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/back_rectangle"
+                android:padding="1px">
+
+                <com.example.cv.widget.Ratio34ImageView
+                    android:id="@+id/imageview_output"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </FrameLayout>
 
             <View
                 android:layout_width="16dp"
@@ -66,14 +90,14 @@
                 android:padding="6dp">
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/my_btn_start_morph"
+                    android:id="@+id/btn_start_morph"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/start_to_morph"
                     android:theme="@style/AppTheme.Button" />
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/my_btn_save_gif"
+                    android:id="@+id/btn_save_gif"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -81,14 +105,14 @@
                     android:theme="@style/AppTheme.Button" />
 
                 <TextView
-                    android:id="@+id/my_alpha_text"
+                    android:id="@+id/alpha_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     tools:text="Alpha: 2.3" />
 
                 <ProgressBar
-                    android:id="@+id/my_alpha_progress"
+                    android:id="@+id/alpha_progress"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="3dp"

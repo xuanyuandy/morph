@@ -1,5 +1,6 @@
 package com.example.cv.activity;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -31,6 +32,10 @@ import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.Utils;
 import com.bumptech.glide.Glide;
 import com.example.cv.activity.GifResultActivity;
+import com.example.cv.worker.EncoderCallback;
+import com.example.cv.worker.MP4OutputWorker;
+import com.example.cv.worker.MorphCallback;
+import com.example.cv.worker.MultiMorphWorker;
 import com.hzy.face.morpher.MorpherApi;
 import com.example.cv.R;
 import com.example.cv.bean.FaceImage;
@@ -45,6 +50,8 @@ import com.example.cv.widget.Ratio34ImageView;
 import com.hzy.face.morpher.Seeta2Api;
 import com.yalantis.ucrop.UCrop;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,27 +65,33 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-@Route(path = RouterHub.TWO_MORPH_ACTIVITY)
-public class MyMorphActivity extends AppCompatActivity {
+@Route(path = RouterHub.My_Final_ACTIVITY)
+public class MyFinalActivity extends AppCompatActivity {
 
-    @BindView(R.id.my_imageview_first)
-    Ratio34ImageView mImageviewFirst;
+
     @BindView(R.id.my_imageview_second)
     Ratio34ImageView mImageviewSecond;
-    @BindView(R.id.my_imageview_output)
-    Ratio34ImageView mImageviewOut;
     @BindView(R.id.my_alpha_text)
     TextView mAlphaText;
     @BindView(R.id.my_alpha_progress)
     ProgressBar mAlphaProgress;
 
+    Ratio34ImageView mDialogImageView;
+    private ProgressBar mDialogProgress;
+    private Dialog mImageDialog;
+    private MultiMorphWorker mMorphWorker;
+    private boolean mMorphSave;
+    private int mTransFrameCount;
+    private MP4OutputWorker mVideoWorker;
+    private int mFrameSpaceUs;
+    private String mOutputPath;
+
+
+
     private BurstLinker mBurstLinker;
     private String mGifFilePath;
     private Point mImageSize;
-    private float mFrameSpace;
     private int mFrameDelayMs;
-    private int mGifQuantizer;
-    private int mGifDitherer;
     // ExecutorService
     private ExecutorService mFaceExecutor;
     private ProgressDialog mProgressDialog;
@@ -96,6 +109,10 @@ public class MyMorphActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initConfigurations();
+//        EventBus.getDefault().register(this);
+        SpaceUtils.clearUsableSpace();
+        prepareMorphData();
+        initPageDialogs();
         // this is the normal use of butterKnife
         setContentView(R.layout.activity_my_morph);
         ButterKnife.bind(this);
@@ -105,7 +122,8 @@ public class MyMorphActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         mImageViews = new LinkedList<>();
-        mImageViews.add(mImageviewFirst);
+//        mImageViews.add(mImageviewFirst);
+        mImageViews.add(null);
         mImageViews.add(mImageviewSecond);
         mOutputBitmap = Bitmap.createBitmap(mImageSize.x, mImageSize.y, Bitmap.Config.ARGB_8888);
 
@@ -115,8 +133,11 @@ public class MyMorphActivity extends AppCompatActivity {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage(getString(R.string.loading_wait_tips));
         mProgressDialog.setCancelable(false);
-
         mFaceExecutor.submit(ModelFileUtils::initSeetaApi);
+
+
+
+
 
         bmp = BitmapFactory.decodeResource(getResources(), R.drawable.beauty3);
         bmp = zoomImg(bmp,mImageSize.x,mImageSize.y);
@@ -163,6 +184,79 @@ public class MyMorphActivity extends AppCompatActivity {
 
     }
 
+    private void startVideoSaver() {
+        mOutputPath = SpaceUtils.newUsableFile().getPath();
+        mVideoWorker = new MP4OutputWorker(mOutputPath, mImageSize.x, mImageSize.y);
+        mVideoWorker.setCallback(new EncoderCallback() {
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        });
+        mVideoWorker.start();
+    }
+
+    private void prepareMorphData() {
+        mOutputBitmap = Bitmap.createBitmap(mImageSize.x, mImageSize.y, Bitmap.Config.ARGB_8888);
+        mMorphWorker = new MultiMorphWorker();
+        mMorphWorker.setOutBitmap(mOutputBitmap);
+        mMorphWorker.setTransFrames(mTransFrameCount);
+        mMorphWorker.setCallback(new MorphCallback() {
+            @Override
+            protected void onStart() {
+                if (mMorphSave) {
+                    startVideoSaver();
+                }
+            }
+
+            @Override
+            protected void onOneFrame(Bitmap bitmap, int index, float alpha) {
+                if (mMorphSave) {
+                    mVideoWorker.queenFrame(bitmap, mFrameSpaceUs);
+                }
+                int progress = (int) ((index + alpha) * 100) / mFaceImages.size();
+                runOnUiThread(() -> {
+                    mDialogImageView.setImageBitmap(bitmap);
+                    mDialogProgress.setProgress(progress);
+                });
+            }
+
+            @Override
+            protected void onAbort() {
+                if (mMorphSave) {
+                    mVideoWorker.release();
+                }
+            }
+
+            @Override
+            protected void onFinish() {
+                if (mMorphSave) {
+                    mVideoWorker.release();
+                }
+            }
+        });
+    }
+
+    private void initPageDialogs() {
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage(getString(R.string.loading_wait_tips));
+        mProgressDialog.setCancelable(false);
+        mImageDialog = new Dialog(this);
+        mImageDialog.setCancelable(false);
+        mImageDialog.setContentView(R.layout.dialog_image_preview);
+        mDialogImageView = mImageDialog.findViewById(R.id.dialog_image_view);
+        mDialogProgress = mImageDialog.findViewById(R.id.dialog_progress);
+        mImageDialog.findViewById(R.id.dialog_btn_cancel)
+                .setOnClickListener(view -> {
+                    mMorphWorker.abort();
+                    mImageDialog.dismiss();
+                });
+    }
+
 
 
     public Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
@@ -181,18 +275,19 @@ public class MyMorphActivity extends AppCompatActivity {
     }
     // get some arguments
     // get some 图像分辨率配置,过渡帧数,gif 持续时间
+
+
     private void initConfigurations() {
         mFaceImages = new LinkedList<>();
         mFaceImages.add(null);
         mFaceImages.add(null);
         mImageSize = ConfigUtils.getConfigResolution();
         int frames = ConfigUtils.getConfigFrameCount();
-        // 这个是morph转换的帧数
-        mFrameSpace = (frames > 0) ? (1f / frames) : 0.1f;
         int duration = ConfigUtils.getConfigTransDuration();
         mFrameDelayMs = duration / frames;
-        mGifQuantizer = ConfigUtils.getConfigGifQuantizer();
-        mGifDitherer = ConfigUtils.getConfigGifDitherer();
+
+        mTransFrameCount = ConfigUtils.getConfigFrameCount() * 10;
+        mFrameSpaceUs = duration * 1000 / mTransFrameCount;
     }
 
     @Override
@@ -220,24 +315,20 @@ public class MyMorphActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    @OnClick({R.id.my_imageview_first,
+    @OnClick({
             R.id.my_imageview_second,
             R.id.my_btn_start_morph,
             R.id.my_btn_save_gif})
     public void onViewClicked(View view) {
         mMorphRunning = false;
         switch (view.getId()) {
-            case R.id.my_imageview_first:
-                mCurrentIndex = 0;
-                ActionUtils.startImageContentAction(this, RequestCode.CHOOSE_IMAGE);
-                break;
             case R.id.my_imageview_second:
                 mCurrentIndex = 1;
                 ActionUtils.startImageContentAction(this, RequestCode.CHOOSE_IMAGE);
                 break;
             case R.id.my_btn_start_morph:
-                startMorphProcess(false);
+//                startMorphProcess(false);
+                morphFaceImages(false);
                 break;
             case R.id.my_btn_save_gif:
                 test();
@@ -247,8 +338,23 @@ public class MyMorphActivity extends AppCompatActivity {
     }
 
     private void snakeBarShow(String msg) {
-        SnackbarUtils.with(mImageviewFirst).setMessage(msg).show();
+        SnackbarUtils.with(mImageviewSecond).setMessage(msg).show();
     }
+
+
+    private void morphFaceImages(boolean isSave) {
+        if (mFaceImages.size() >= 2) {
+            Glide.with(this).load(mFaceImages.get(0).path).into(mDialogImageView);
+            mDialogProgress.setProgress(0);
+            mImageDialog.show();
+            mMorphWorker.setFaceImages(mFaceImages);
+            mMorphSave = isSave;
+            mFaceExecutor.submit(mMorphWorker);
+        } else {
+            snakeBarShow(getString(R.string.select_2images_tips));
+        }
+    }
+
 
     // receive the information from the image intent
     // this function may be use twice
@@ -310,73 +416,8 @@ public class MyMorphActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Start To processing the images
-     *
-     * @param isSave if you want to save gif
-     */
-    private void startMorphProcess(boolean isSave) {
-        // first judge two images
-        if (mFaceImages.get(0) != null && mFaceImages.get(1) != null) {
-            if (isSave) {
-                snakeBarShow(getString(R.string.morphing_please_wait));
-            }
-            mAlphaProgress.setProgress(0);
-            mFaceExecutor.submit(() -> morphToBitmapAsync(isSave));
-        } else {
-            snakeBarShow(getString(R.string.choose_images_first));
-        }
-    }
 
-    private void morphToBitmapAsync(boolean needSave) {
-        mMorphRunning = true;
-        try {
-            if (needSave) {
-                mBurstLinker = new BurstLinker();
-                mGifFilePath = SpaceUtils.newUsableFile().getPath();
-                mBurstLinker.init(mOutputBitmap.getWidth(), mOutputBitmap.getHeight(),
-                        mGifFilePath, BurstLinker.CPU_COUNT);
-            }
-            FaceImage face1 = mFaceImages.get(0);
-            FaceImage face2 = mFaceImages.get(1);
-            Bitmap bmp1 = FaceUtils.getBmpWithSize(face1.path, mImageSize.x, mImageSize.y);
-            Bitmap bmp2 = FaceUtils.getBmpWithSize(face2.path, mImageSize.x, mImageSize.y);
 
-            while (mMorphRunning) {
-                float alpha = 1 - Math.abs(mMorphAlpha);
-                MorpherApi.morphToBitmap(bmp1, bmp2, mOutputBitmap, face1.points,
-                        face2.points, face1.indices, alpha);
-                runOnUiThread(() -> {
-                    mImageviewOut.setImageBitmap(mOutputBitmap);
-                    // this is just the progress
-                    mAlphaProgress.setProgress((int) (alpha * 100));
-                    mAlphaText.setText(getString(R.string.alpha_format_text, alpha));
-                });
-                if (needSave) {
-                    mBurstLinker.connect(mOutputBitmap, mGifQuantizer,
-                            mGifDitherer, 0, 0, mFrameDelayMs);
-                }
-                mMorphAlpha += mFrameSpace;
-                if (mMorphAlpha > 1) {
-                    mMorphAlpha = -1;
-                    if (needSave) {
-                        mBurstLinker.release();
-                        runOnUiThread(this::routerShareGifImage);
-                        needSave = false;
-                    }
-                }
-            }
-            if (bmp1 != null) {
-                bmp1.recycle();
-            }
-            if (bmp2 != null) {
-                bmp2.recycle();
-            }
-            mMorphAlpha = -1f;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private void routerShareGifImage() {
         if (!StringUtils.isTrimEmpty(mGifFilePath)) {
