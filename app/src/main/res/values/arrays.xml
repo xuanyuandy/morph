@@ -5,6 +5,10 @@
         <item>Face Division</item>
         <item>Face Rect</item>
     </string-array>
+    <string-array name="myarray">
+        <item>赵丽颖</item>
+        <item>彭于晏</item>
+    </string-array>
     <string-array name="pref_resolution_array">
         <item>240x320</item>
         <item>288x384</item>

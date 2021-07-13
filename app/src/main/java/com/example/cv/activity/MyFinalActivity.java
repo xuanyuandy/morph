@@ -15,8 +15,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,6 +77,10 @@ public class MyFinalActivity extends AppCompatActivity {
     TextView mAlphaText;
     @BindView(R.id.my_alpha_progress)
     ProgressBar mAlphaProgress;
+    @BindView(R.id.spinner)
+    Spinner spinner;
+
+    String arr[];
 
     Ratio34ImageView mDialogImageView;
     private ProgressBar mDialogProgress;
@@ -122,7 +128,6 @@ public class MyFinalActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         mImageViews = new LinkedList<>();
-//        mImageViews.add(mImageviewFirst);
         mImageViews.add(null);
         mImageViews.add(mImageviewSecond);
         mOutputBitmap = Bitmap.createBitmap(mImageSize.x, mImageSize.y, Bitmap.Config.ARGB_8888);
@@ -134,23 +139,40 @@ public class MyFinalActivity extends AppCompatActivity {
         mProgressDialog.setMessage(getString(R.string.loading_wait_tips));
         mProgressDialog.setCancelable(false);
         mFaceExecutor.submit(ModelFileUtils::initSeetaApi);
-
-
-
-
-
-        bmp = BitmapFactory.decodeResource(getResources(), R.drawable.beauty3);
-        bmp = zoomImg(bmp,mImageSize.x,mImageSize.y);
-        assert(bmp != null);
+        spininit();
 
     }
 
-    private void test(){
+
+    private void spininit(){
+        arr = getResources().getStringArray(R.array.myarray);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                Toast.makeText(MyFinalActivity.this, "你选中了" + arr[i], Toast.LENGTH_SHORT).show();
+                test(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+    }
+    private void test(int id){
+        if(id == 0){
+            bmp = BitmapFactory.decodeResource(getResources(), R.drawable.beauty3);
+        }else if(id == 1){
+            bmp = BitmapFactory.decodeResource(getResources(), R.drawable.pyy);
+        }
+//        bmp = BitmapFactory.decodeResource(getResources(), R.drawable.beauty3);
+        bmp = zoomImg(bmp,mImageSize.x,mImageSize.y);
+        assert(bmp != null);
         File imgFile = SpaceUtils.newUsableFile();
         mSelectPath = imgFile.getPath();
         // 将当前image存到任意分配的路径下
         // R.drawable.beauty3 -> imgFile
-
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(imgFile);
@@ -179,7 +201,7 @@ public class MyFinalActivity extends AppCompatActivity {
         }
 
         mFaceImages.set(0, FirstImage);
-        assert (mFaceImages.get(0) != null);
+//        assert (mFaceImages.get(0) != null);
 
 
     }
@@ -331,7 +353,7 @@ public class MyFinalActivity extends AppCompatActivity {
                 morphFaceImages(false);
                 break;
             case R.id.my_btn_save_gif:
-                test();
+//                test();
 //                startMorphProcess(true);
                 break;
         }
